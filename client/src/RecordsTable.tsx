@@ -39,6 +39,15 @@ function RecordsTable(props: Props) {
         title: "Buyer name",
         render: (record: ProcurementRecord) => record.buyer.name,
       },
+      {
+        title: "Value",
+        render: (record: ProcurementRecord) =>
+          record!.currency ? record.value.toLocaleString("en-US", {
+            style: "currency",
+            currency: record.currency,
+            minimumFractionDigits: 0,
+          }) : record.value
+      },
     ];
   }, []);
   return (
