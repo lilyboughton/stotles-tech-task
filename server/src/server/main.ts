@@ -104,6 +104,9 @@ function serializeProcurementRecord(
     },
     value: record.value,
     currency: record.currency,
+    stage: record.stage,
+    closeDate: record.close_date,
+    awardDate: record.award_date
   };
 }
 

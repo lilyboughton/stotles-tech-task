@@ -15,6 +15,9 @@ export type ProcurementRecord = {
   };
   value: number;
   currency: string;
+  stage: "TENDER" | "CONTRACT";
+  closeDate: string | null;
+  awardDate: string | null;
 };
 
 export type SearchRecordsResponse = {

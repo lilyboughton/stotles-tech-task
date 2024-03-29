@@ -8,6 +8,23 @@ type Props = {
   records: ProcurementRecord[];
 };
 
+function getStage(stage: string, close?: string, award?: string) {
+  const closeDate: Date = new Date(close);
+  const awardDate: Date = new Date(award);
+  console.log(stage)
+  if (stage === "TENDER") {
+    if (closeDate > new Date() || closeDate === null) {
+      return `Open until ${closeDate.toLocaleDateString()}`;
+    } else {
+      return 'Closed';
+    }
+  } else if (stage === 'CONTRACT') {
+    return `Awarded on ${awardDate.toLocaleDateString()}`
+  } else {
+    return 'ERROR';
+  }
+}
+
 function RecordsTable(props: Props) {
   const { records } = props;
   const [previewedRecord, setPreviewedRecord] = React.useState<
@@ -47,6 +64,11 @@ function RecordsTable(props: Props) {
             currency: record.currency,
             minimumFractionDigits: 0,
           }) : record.value
+      },
+      {
+        title: "Stage",
+        render: (record: ProcurementRecord) =>
+          getStage(record.stage, record.closeDate, record.awardDate)
       },
     ];
   }, []);
