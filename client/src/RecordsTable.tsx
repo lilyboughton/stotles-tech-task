@@ -21,7 +21,8 @@ function getStage(stage: string, close?: string, award?: string) {
   } else if (stage === 'CONTRACT') {
     return `Awarded on ${awardDate.toLocaleDateString()}`
   } else {
-    return 'ERROR';
+    //this is very basic error handling and could be improved to provide better UX
+    return 'UNKNOWN';
   }
 }
 
@@ -59,6 +60,7 @@ function RecordsTable(props: Props) {
       {
         title: "Value",
         render: (record: ProcurementRecord) =>
+          //this is a crude way to display the currency which I would look to refactor
           record!.currency ? record.value.toLocaleString("en-US", {
             style: "currency",
             currency: record.currency,

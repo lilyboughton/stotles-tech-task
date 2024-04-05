@@ -18,15 +18,23 @@ import RecordsTable from "./RecordsTable";
 
 const PAGE_SIZE = 10;
 
+export type Buyer = {
+  label: string;
+  value: string;
+}
+
 function RecordSearchPage() {
   const [page, setPage] = React.useState<number>(1);
   const [searchFilters, setSearchFilters] = React.useState<SearchFilters>({
     query: "",
+    buyer: "",
   });
 
   const [records, setRecords] = React.useState<
     ProcurementRecord[] | undefined
   >();
+
+  const [buyers, setBuyers] = React.useState<Buyer[]>([]);
 
   const [reachedEndOfSearch, setReachedEndOfSearch] = React.useState(false);
 
@@ -35,6 +43,7 @@ function RecordSearchPage() {
       const api = new Api();
       const response = await api.searchRecords({
         textSearch: searchFilters.query,
+        buyer: searchFilters.buyer,
         limit: PAGE_SIZE,
         offset: PAGE_SIZE * (page - 1),
       });
@@ -46,6 +55,16 @@ function RecordSearchPage() {
         setRecords((oldRecords) => [...oldRecords, ...response.records]);
       }
       setReachedEndOfSearch(response.endOfResults);
+      if (buyers.length === 0) {
+        const buyersResponse = await api.searchBuyers();
+        const buyersList = buyersResponse.map((buyer) => {
+          return {
+            label: buyer.name,
+            value: buyer.id,
+          };
+        });
+        setBuyers(buyersList);
+      }
     })();
   }, [searchFilters, page]);
 
@@ -62,6 +81,7 @@ function RecordSearchPage() {
     <>
       <RecordSearchFilters
         filters={searchFilters}
+        buyers={ }
         onChange={handleChangeFilters}
       />
       {records && (
