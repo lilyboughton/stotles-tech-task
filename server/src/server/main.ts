@@ -42,23 +42,49 @@ app.use(express.json());
 
 type RecordSearchFilters = {
   textSearch?: string;
+  buyerId?: string;
 };
 
 /**
  * Queries the database for procurement records according to the search filters.
  */
 async function searchRecords(
-  { textSearch }: RecordSearchFilters,
+  { textSearch, buyerId }: RecordSearchFilters,
   offset: number,
   limit: number
 ): Promise<ProcurementRecord[]> {
-  if (textSearch) {
+  if (textSearch && buyerId) {
+    return await sequelize.query(
+      "SELECT * FROM procurement_records WHERE (title LIKE :textSearch OR description LIKE :textSearch) AND (buyer_id=:buyerID) LIMIT :limit OFFSET :offset",
+      {
+        model: ProcurementRecord,
+        replacements: {
+          textSearch: `%${textSearch}%`,
+          buyerId: buyerId,
+          offset: offset,
+          limit: limit,
+        },
+      }
+    );
+  } else if (textSearch) {
     return await sequelize.query(
       "SELECT * FROM procurement_records WHERE (title LIKE :textSearch OR description LIKE :textSearch) LIMIT :limit OFFSET :offset",
       {
         model: ProcurementRecord, // by setting this sequelize will return a list of ProcurementRecord objects
         replacements: {
           textSearch: `%${textSearch}%`,
+          offset: offset,
+          limit: limit,
+        },
+      }
+    );
+  } else if (buyerId) {
+    return await sequelize.query(
+      "SELECT * FROM procurement_records WHERE (buyer_id=:buyerID) LIMIT :limit OFFSET :offset",
+      {
+        model: ProcurementRecord,
+        replacements: {
+          buyerId: buyerId,
           offset: offset,
           limit: limit,
         },
