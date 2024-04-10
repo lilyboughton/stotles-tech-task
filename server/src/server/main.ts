@@ -1,7 +1,8 @@
-import express, { request } from "express";
+import express from "express";
 
 import { Sequelize } from "sequelize-typescript";
 import {
+  BuyerFilterResponse,
   ProcurementRecordDto,
   RecordSearchRequest,
   RecordSearchResponse,
@@ -55,7 +56,7 @@ async function searchRecords(
 ): Promise<ProcurementRecord[]> {
   if (textSearch && buyerId) {
     return await sequelize.query(
-      "SELECT * FROM procurement_records WHERE (title LIKE :textSearch OR description LIKE :textSearch) AND (buyer_id=:buyerID) LIMIT :limit OFFSET :offset",
+      "SELECT * FROM procurement_records WHERE (title LIKE :textSearch OR description LIKE :textSearch) AND (buyer_id IN (:buyerId)) LIMIT :limit OFFSET :offset",
       {
         model: ProcurementRecord,
         replacements: {
@@ -80,7 +81,7 @@ async function searchRecords(
     );
   } else if (buyerId) {
     return await sequelize.query(
-      "SELECT * FROM procurement_records WHERE (buyer_id=:buyerID) LIMIT :limit OFFSET :offset",
+      "SELECT * FROM procurement_records WHERE buyer_id IN (:buyerId) LIMIT :limit OFFSET :offset",
       {
         model: ProcurementRecord,
         replacements: {
@@ -186,6 +187,7 @@ app.post("/api/records", async (req, res) => {
   const records = await searchRecords(
     {
       textSearch: requestPayload.textSearch,
+      buyerId: requestPayload.buyerId,
     },
     offset,
     limit + 1
@@ -197,6 +199,23 @@ app.post("/api/records", async (req, res) => {
     ),
     endOfResults: records.length <= limit, // in this case we've reached the end of results
   };
+
+  res.json(response);
+});
+
+async function getAllBuyers(): Promise<Buyer[]> {
+  return await sequelize.query("SELECT * FROM buyers", {
+    model: Buyer,
+  });
+}
+
+app.get("/api/buyers", async (_req, res) => {
+  const buyers = await getAllBuyers();
+
+  const response: BuyerFilterResponse = buyers.map((buyer) => ({
+    id: buyer.id,
+    name: buyer.name,
+  }));
 
   res.json(response);
 });

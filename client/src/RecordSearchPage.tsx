@@ -1,7 +1,7 @@
 import { Button } from "antd";
 import React from "react";
 import Api, { ProcurementRecord } from "./Api";
-import RecordSearchFilters, { SearchFilters } from "./RecordSearchFilters";
+import RecordSearchFilters, { Buyer, SearchFilters } from "./RecordSearchFilters";
 import RecordsTable from "./RecordsTable";
 
 /**
@@ -18,15 +18,19 @@ import RecordsTable from "./RecordsTable";
 
 const PAGE_SIZE = 10;
 
+
 function RecordSearchPage() {
   const [page, setPage] = React.useState<number>(1);
   const [searchFilters, setSearchFilters] = React.useState<SearchFilters>({
     query: "",
+    buyer: "",
   });
 
   const [records, setRecords] = React.useState<
     ProcurementRecord[] | undefined
   >();
+
+  const [buyers, setBuyers] = React.useState<Buyer[]>([]);
 
   const [reachedEndOfSearch, setReachedEndOfSearch] = React.useState(false);
 
@@ -35,6 +39,7 @@ function RecordSearchPage() {
       const api = new Api();
       const response = await api.searchRecords({
         textSearch: searchFilters.query,
+        buyerId: searchFilters.buyer,
         limit: PAGE_SIZE,
         offset: PAGE_SIZE * (page - 1),
       });
@@ -46,6 +51,20 @@ function RecordSearchPage() {
         setRecords((oldRecords) => [...oldRecords, ...response.records]);
       }
       setReachedEndOfSearch(response.endOfResults);
+
+      if (buyers.length === 0) {
+        const buyersResponse = await api.filterByBuyer();
+        const buyersToFilterBy: Buyer[] = buyersResponse.map((buyer) => {
+          return {
+            label: buyer.name,
+            value: buyer.id,
+          };
+        });
+        //I would implement a custom function to sort by buyer name to make this list more user friendly
+        //but since there is a search functionality in the dropdown, I didn't prioritise this
+        setBuyers(buyersToFilterBy);
+      }
+
     })();
   }, [searchFilters, page]);
 
@@ -62,6 +81,7 @@ function RecordSearchPage() {
     <>
       <RecordSearchFilters
         filters={searchFilters}
+        buyers={buyers}
         onChange={handleChangeFilters}
       />
       {records && (
