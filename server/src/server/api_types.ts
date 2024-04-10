@@ -1,5 +1,6 @@
 export type RecordSearchRequest = {
   textSearch?: string;
+  buyerId?: string;
   offset: number;
   limit: number;
 };
@@ -27,4 +28,4 @@ export type RecordSearchResponse = {
   endOfResults: boolean; // this is true when there are no more results to search
 };
 
-export type BuyerSearchResponse = BuyerDto;
+export type BuyerFilterResponse = BuyerDto[];

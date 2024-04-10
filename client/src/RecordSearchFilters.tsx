@@ -1,10 +1,14 @@
 import { Input, Select } from "antd";
 import React from "react";
-import { Buyer } from "./RecordSearchPage"
 
 export type SearchFilters = {
   query: string;
   buyer?: string;
+};
+
+export type Buyer = {
+  label: string;
+  value: string;
 };
 
 type Props = {
@@ -36,6 +40,9 @@ function RecordSearchFilters(props: Props) {
     [onChange, filters]
   );
 
+  const filterBuyerOption = (input: string, option?: { label: string; value: string }) =>
+    (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+
   return (
     <div>
       <Input
@@ -45,14 +52,12 @@ function RecordSearchFilters(props: Props) {
       />
       <Select
         showSearch
+        allowClear
         placeholder="Filter by buyer"
+        onChange={handleBuyerChange}
+        filterOption={filterBuyerOption}
         style={{ width: "100%" }}
         options={buyers}
-        allowClear
-        onChange={handleBuyerChange}
-        filterOption={(input, option) =>
-          option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-        }
       />
     </div>
   );

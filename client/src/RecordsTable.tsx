@@ -11,7 +11,6 @@ type Props = {
 function getStage(stage: string, close?: string, award?: string) {
   const closeDate: Date = new Date(close);
   const awardDate: Date = new Date(award);
-  console.log(stage)
   if (stage === "TENDER") {
     if (closeDate > new Date() || closeDate === null) {
       return `Open until ${closeDate.toLocaleDateString()}`;
